@@ -129,8 +129,10 @@ void processServer(){
         header += c;
         if (c == '\n') {
           if (currentLine.length() == 0) {
+            bool redirect = false;
 
             if (header.indexOf("GET /save") >= 0) {
+              redirect = true;
               int nameIndex = header.indexOf("name=");
               if (nameIndex >= 0) {
                 int nameEndIndex = header.indexOf(" ", nameIndex);
@@ -146,12 +148,14 @@ void processServer(){
                 }
               }
             }else if (header.indexOf("GET /send") >= 0){
+              redirect = true;
               int startIndex = header.indexOf("/send/");
               String commandIndex = header.substring(startIndex + 6, startIndex + 8);
               Serial.println("Sending: " + commandIndex);
               int i = commandIndex.toInt();
               sendCommand(i);
             }else if (header.indexOf("GET /delet") >= 0){
+              redirect = true;
               int startIndex = header.indexOf("/delet/");
               String commandIndex = header.substring(startIndex + 7, startIndex + 9);
               Serial.println("Deleting: " + commandIndex);
@@ -171,7 +175,9 @@ void processServer(){
             client.println("<!DOCTYPE html><html>");
             client.println("<head><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">");
             client.println("<link rel=\"icon\" href=\"data:,\">");
-
+            if(redirect){
+              client.print("<meta http-equiv=\"refresh\" content=\"0;url=/\">");
+            }
             client.println("<style>table { font-family: arial, sans-serif; border-collapse: collapse; width: 100%;}td, th { border: 1px solid #dddddd; text-align: left; padding: 8px;}tr:nth-child(even) { background-color: #dddddd;}</style>");
             client.println("</head><body>");
 
